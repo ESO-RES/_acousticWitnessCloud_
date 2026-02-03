@@ -1,0 +1,244 @@
+# Sports Stadium Audio Analysis  
+## A Multi‑Camera, Multi‑Device Phase Guide
+
+This guide adapts the bat-crack/glove-thud and concert workflows to **sports stadium events** — a bat crack, referee whistle, goal celebration cheer, or other sharp transients. It uses **multiple audience devices** (phones, cameras, mics) to:
+
+- align unsynced recordings,
+- measure **relative phase and cycle offsets** between devices,
+- interpret offsets physically (time, distance, seating geometry),
+- and verify consistency across the game/event.
+
+It builds on midrange physics, phase matrices, and adversarial checks for crowdsourced stadium forensics, sync, or reconstruction.
+
+---
+
+## 1. The Physical Event (Ground Truth)
+
+### 1.1 Key acoustic anchors
+Sports events produce repeatable **impulsive sounds**:
+
+1. **Primary transient** (e.g., bat crack, field goal kick, basketball rim clang, soccer ball strike)  
+   - Sharp onset, strong midrange energy (≈800–1500 Hz)  
+   - Excellent for phase analysis; repeatable
+
+2. **Secondary transient** (e.g., referee whistle, crowd cheer peak, goal horn, announcer call)  
+   - Slightly broader or delayed spectrum  
+   - Use as time-interval anchor
+
+These act as **shared impulses** like bat/glove or kick/snare.
+
+---
+
+## 2. What the Devices Capture
+
+Each phone / camera records:
+
+- Video (frame clock)
+- Audio (ADC clock)
+- Unknown start time
+- Unknown latency
+- Possible drift over quarters/halves
+
+**No shared sync.**  
+Relative phase reveals seating positions and field-to-stands delays.
+
+---
+
+## 3. Why Narrowband Phase Works Here
+
+### 3.1 Choice of frequency band
+Isolate midrange:
+
+- **Center:** ~1000 Hz  
+- **Bandwidth:** ~50–100 Hz (Q ≈ 10–20)
+
+Reasons:
+- Human-scale wavelength (~0.34 m / ~1.13 ft)
+- Stable across phone mics
+- Transients ring cleanly after filtering
+- Phase maps to distance intuitively
+
+At 70°F:
+- Speed of sound ≈ **344 m/s**
+- Wavelength at 1 kHz ≈ **0.344 m (~1.13 ft)**
+
+So:
+- **1 cycle = 1 ms = ~1.13 ft of propagation**
+
+Stadium PA/crowd reverb adds challenge — midrange cuts through best.
+
+---
+
+## 4. Pre‑Processing Workflow (All Devices)
+
+### Step 1 — Extract audio
+- Export from every video
+- Same sample rate (e.g., 48 kHz)
+- Mono preferred
+
+### Step 2 — Rough alignment
+- Line up a **strong transient** (e.g., first bat crack or whistle) via video
+- Accuracy: within ~50–200 ms
+- Use crowd reaction or scoreboard for cross-check
+
+### Step 3 — Band‑pass filtering
+- Apply narrow bandpass (e.g., 1000 Hz ±50 Hz)
+- Render to new files
+- Result: ringing quasi‑sinusoid per device
+
+---
+
+## 5. Phase Measurement Between Devices
+
+### 5.1 Reference selection
+Choose one track:
+- Highest SNR (e.g., field-level / lower bowl device)
+- Cleanest transient onset
+
+All others relative to this.
+
+### 5.2 Measure phase / cycles
+For each device pair:
+
+- Use GCC‑PHAT or cycle counting for Δt
+- Convert:
+  - Cycles = Δt × f
+  - Phase = cycles × 360° (mod 360)
+
+Example:
+- 150 cycles @ 1 kHz  
+→ 150 ms  
+→ ~169 ft path difference (lower bowl to upper deck)
+
+---
+
+## 6. Building the Phase Relation Matrix
+
+Create a matrix:
+- Rows/columns = devices
+- Entries = Δt, cycles, or phase per transient
+
+This matrix maps **stadium geometry**:
+- Field-level clusters: small offsets
+- Upper-deck lags: large cycle counts
+
+Triangle check:
+Δt(A,B) + Δt(B,C) ≈ Δt(A,C)
+
+Violations flag drift, PA delay artifacts, or fakes.
+
+---
+
+## 7. Interpreting the Primary Transient (e.g., Bat Crack / Kick)
+
+For a sharp **field impulse**:
+
+- All devices hear the same source
+- Phase offsets reflect:
+  - distances from field to seating (sound speed delay)
+  - constant device latency
+
+With stadium PA/crowd:
+- GCC-PHAT isolates direct sound
+- Coherence drops with distance/seating
+
+This anchors the "bat crack" equivalent.
+
+---
+
+## 8. Interpreting the Secondary Transient (e.g., Whistle / Crowd Cheer)
+
+A later cue (e.g., referee whistle, goal cheer) occurs ~seconds later.
+
+Each device:
+- Measures new Δt relative to its own primary time
+- Phase repeatable across cues
+
+Primary → Secondary interval per device:
+- Dominated by **game timing** (not sound propagation)
+- Verifies clock drift over quarters
+
+---
+
+## 9. Connecting Cycles to Real Physics
+
+Stadium example:
+- Distance field → upper deck ≈ 300 ft (91 m)
+- Δt ≈ 266 ms
+- Cycles ≈ **266** at 1 kHz
+
+This explains:
+- Lower-to-upper offsets map seating tiers
+- Large cycle counts over stadium scales
+- Small **differences** (few cycles) encode row/seat geometry
+
+---
+
+## 10. Multi‑Device Consistency Across the Game
+
+A valid set shows:
+
+- Per-transient matrix: consistent
+- Game-long phase: stable (no drift)
+- Multi‑band agreement (e.g., 1000 vs 1200 Hz)
+- Reverb/PA tolerance: phase jitter increases with distance
+
+Failures:
+- drifting offsets (clock skew)
+- band mismatch (editing)
+- outlier clusters (replays)
+
+---
+
+## 11. Adversarial & Reality Checks
+
+Apply the protocol:
+
+- Multi‑band confirmation
+- Global residual minimization
+- Outlier rejection
+- Cluster detection
+
+A real game:
+- Fits one stadium geometry
+- Degrades with crowd/PA noise
+- Cannot be faked cheaply (phase must align across transients)
+
+---
+
+## 12. Yankee Stadium Example (Real-World Application)
+
+**Scenario**: 2025 Yankees vs. Red Sox game, bottom of the 9th, Aaron Judge at bat.  
+- Bat crack (primary transient)  
+- Ball hits glove (secondary transient, ~0.4 s later)
+
+**Devices**:
+- Device A: Lower box, ~80 ft from home plate
+- Device B: Mezzanine, ~180 ft from home plate
+- Device C: Upper deck, ~320 ft from home plate
+
+**Phase matrix for bat crack (1 kHz)**:
+- A → B: +88 cycles (~88 ms, ~99 ft path difference)  
+- A → C: +212 cycles (~212 ms, ~240 ft path difference)  
+- B → C: +124 cycles (~124 ms, ~140 ft path difference)
+
+**Triangle check**: 88 + 124 ≈ 212 → passes (within ~2 ms error from reverb/noise)
+
+**Interpretation**:
+- Device A (reference) → closest to field  
+- Device B → ~100 ft farther (consistent with mezzanine seating)  
+- Device C → ~240 ft farther (matches upper deck to home plate)  
+- Glove thud interval ≈ 400 ms across all → ball flight time (not sound delay)
+
+**Result**: All three clips are from the same real play; seating geometry reconstructed; no evidence of edits or replays.
+
+---
+
+## 13. Mental Model Summary
+
+- **Sound lacks timestamps**
+- **Phase encodes geometry**
+- **Cycles are just distance in disguise**
+- **Truth from consistency, not perfection**
+
+This adapts the bat-glove and concert cases to stadiums' scale, PA delays, and crowd reverb.

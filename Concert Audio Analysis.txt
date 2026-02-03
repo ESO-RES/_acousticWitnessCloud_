@@ -1,0 +1,230 @@
+# Concert Audio Analysis  
+## A Multi‑Camera, Multi‑Device Phase Guide
+
+This guide adapts the **bat crack → glove thud** workflow to concert audio. It shows how a live performance — with sharp transients like kick/snare hits or vocal cues — can be analyzed using **multiple audience devices** to:
+
+- align unsynced recordings,
+- measure **relative phase and cycle offsets** between devices,
+- interpret those offsets physically (time, distance, venue geometry),
+- and verify consistency across the set.
+
+It builds on the phase-relation protocol, adversarial checks, and midrange physics for crowdsourced concert forensics or reconstruction.
+
+---
+
+## 1. The Physical Event (Ground Truth)
+
+### 1.1 Key acoustic anchors
+A concert set produces repeated **impulsive sounds** across songs:
+
+1. **Kick drum / snare crack**  
+   - Sharp onset, strong midrange energy (≈800–1500 Hz)  
+   - Ideal for phase analysis; repeatable across the set  
+
+2. **Vocal cue or cymbal crash**  
+   - Slightly broader spectrum, but trackable  
+   - Use as secondary anchor for time intervals  
+
+These serve as **shared transients** like the bat/glove pair.
+
+---
+
+## 2. What the Devices Capture
+
+Each phone / camera records:
+
+- Video (with its own frame clock)
+- Audio (with its own ADC clock)
+- Unknown start time
+- Unknown constant latency
+- Possible drift over a long set
+
+**No shared sync.**  
+Relative phase reveals venue positions and consistency.
+
+---
+
+## 3. Why Narrowband Phase Works Here
+
+### 3.1 Choice of frequency band
+Isolate midrange, e.g.:
+
+- **Center:** ~1000 Hz  
+- **Bandwidth:** ~50–100 Hz (Q ≈ 10–20)
+
+Reasons:
+- Human-scale wavelength (~0.34 m / ~1.1 ft)
+- Stable across phone mics
+- Transients ring cleanly after filtering
+- Phase maps to distance intuitively
+
+At 70°F:
+- Speed of sound ≈ **344 m/s**
+- Wavelength at 1 kHz ≈ **0.344 m (~1.13 ft)**
+
+So:
+- **1 cycle = 1 ms = ~1.13 ft of propagation**
+
+Concert reverb adds challenge — midrange cuts through.
+
+---
+
+## 4. Pre‑Processing Workflow (All Devices)
+
+### Step 1 — Extract audio
+- Export from every video
+- Same sample rate (e.g., 48 kHz)
+- Mono preferred
+
+### Step 2 — Rough alignment
+- Line up a **strong transient** (e.g., first kick hit)
+- Accuracy: within ~50–100 ms
+- Use video applause or stage lights for cross-check
+
+### Step 3 — Band‑pass filtering
+- Apply narrow bandpass (e.g., 1000 Hz ±50 Hz)
+- Render to new files
+- Result: ringing quasi‑sinusoid per device
+
+---
+
+## 5. Phase Measurement Between Devices
+
+### 5.1 Reference selection
+Choose one track:
+- Highest SNR (e.g., front-row device)
+- Cleanest transient onset
+
+All others relative to this.
+
+### 5.2 Measure phase / cycles
+For each device pair:
+
+- Use GCC‑PHAT or cycle counting for Δt
+- Convert:
+  - Cycles = Δt × f
+  - Phase = cycles × 360° (mod 360)
+
+Example:
+- 45 cycles @ 1 kHz  
+→ 45 ms  
+→ ~51 ft path difference (front to back row)
+
+---
+
+## 6. Building the Phase Relation Matrix
+
+Create a matrix:
+- Rows/columns = devices
+- Entries = Δt, cycles, or phase per transient
+
+This matrix maps **venue geometry**:
+- Front-row clusters: small offsets
+- Back-row lags: large cycle counts
+
+Triangle check:
+Δt(A,B) + Δt(B,C) ≈ Δt(A,C)
+
+Violations flag drift, reverb artifacts, or fakes.
+
+---
+
+## 7. Interpreting the Kick / Snare Crack
+
+For a sharp **kick/snare**:
+
+- All devices hear the same stage impulse
+- Phase offsets reflect:
+  - distances to stage (sound speed delay)
+  - constant device latency
+
+With venue reverb:
+- GCC-PHAT helps isolate direct sound
+- Coherence drops with distance
+
+This anchors the "bat crack" equivalent.
+
+---
+
+## 8. Interpreting the Vocal Cue or Crash
+
+A later cue (e.g., vocal "hey!") occurs ~seconds/minutes after.
+
+Each device:
+- Measures new Δt relative to its own kick time
+- Phase repeatable across cues
+
+Kick → Cue interval per device:
+- Dominated by **performance timing** (not sound propagation)
+- Verifies clock drift over set
+
+---
+
+## 9. Connecting Cycles to Real Physics
+
+Concert example:
+- Distance stage → back row ≈ 200 ft (61 m)
+- Δt ≈ 177 ms
+- Cycles ≈ **177** at 1 kHz
+
+This explains:
+- Front/back offsets map seating
+- Large cycle counts over venue scales
+- Small **differences** (few cycles) encode row/seat geometry
+
+---
+
+## 10. Multi‑Device Consistency Across the Set
+
+A valid concert set shows:
+
+- Per-transient matrix: consistent
+- Set-long phase: stable (no drift)
+- Multi‑band agreement (e.g., 1000 vs 1200 Hz)
+- Reverb tolerance: phase jitter increases with distance
+
+Failures:
+- drifting offsets (clock skew)
+- band mismatch (editing)
+- outlier clusters (replays)
+
+---
+
+## 11. Adversarial & Reality Checks
+
+Apply the protocol:
+
+- Multi‑band confirmation
+- Global residual minimization
+- Outlier rejection
+- Cluster detection
+
+A real concert:
+- Fits one venue geometry
+- Degrades with crowd noise/reverb
+- Cannot be faked cheaply (phase must align across transients)
+
+---
+
+## 12. What This Ultimately Gives You
+
+From unsynced audience clips, you can:
+
+- Sync the set for a "crowd master" mix
+- Map approximate seating/venue layout
+- Detect fakes or edits in viral clips
+- Tie phase to **human‑scale distances** (e.g., front vs back row)
+
+The kick/snare is not just a beat —  
+it is a **shared acoustic constraint** etched into every device.
+
+---
+
+## 13. Mental Model Summary
+
+- **Sound lacks timestamps**
+- **Phase encodes geometry**
+- **Cycles are just distance in disguise**
+- **Truth from consistency, not perfection**
+
+This adapts the bat-glove case to concerts' scale and reverb.
