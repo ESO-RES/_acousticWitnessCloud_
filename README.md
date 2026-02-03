@@ -2,20 +2,24 @@
 # Acoustic Witness Cloud
 ## Multi-Device Event Verification via Audio Phase Geometry
 
-![image](https://github.com/user-attachments/assets/8f15561b-37ef-4a47-ab4f-377f8efeaf11)
+![image](https://github.com/user-attachments/assets/25e2ec32-d726-4c35-882b-7b68a316318a)
 
 ---
 
 ## What This Repository Demonstrates
 
-This project shows how multiple **unsynchronized consumer devices** can jointly verify the timing and spatial consistency of real-world acoustic events using **physics-based constraints**, even when:
+This project shows how multiple **unsynchronized consumer devices** (phones, cameras, recorders) can jointly verify the timing and spatial consistency of real-world acoustic events using **physics-based constraints**, even when:
 
-- device clocks are inaccurate,
-- GPS is unavailable or spoofed,
-- audio contains noise, echoes, or reverberation.
+- Device clocks are inaccurate or drifting  
+- GPS is unavailable, jammed, or spoofed  
+- Audio contains noise, echoes, or reverberation  
 
-**Core idea:**  
-> Phase is locally ambiguous, but globally constrained.
+**Core idea:**
+
+> **Phase is locally ambiguous, but globally constrained.**
+
+A single recording is never enough.  
+Multiple recordings must agree with physics.
 
 ---
 
@@ -23,47 +27,71 @@ This project shows how multiple **unsynchronized consumer devices** can jointly 
 
 ### Speed of Sound
 
-\[
-c \approx 343 \,\text{m/s} \approx 1125 \,\text{ft/s}
-\]
+At room temperature:
+
+```
+c ≈ 343 meters/second ≈ 1125 feet/second
+```
 
 ### Midrange Audio Wavelength
 
-For a representative frequency \( f \approx 1000 \,\text{Hz} \):
+For a representative audio frequency of approximately 1 kHz:
 
-\[
-\lambda = \frac{c}{f} \approx 0.343 \,\text{m} \approx 1.13 \,\text{ft}
-\]
+```
+f ≈ 1000 Hz
+λ = c / f ≈ 0.343 meters ≈ 1.13 feet
+```
+
+This wavelength is short enough to give fine spatial resolution,  
+yet long enough to remain stable across consumer microphones.
+
+---
 
 ### Phase–Distance Relationship
 
-A measured phase difference \( \phi \in [0,2\pi) \) corresponds to:
+Each device measures **phase**, not distance.
 
-\[
-d = \left(n + \frac{\phi}{2\pi}\right)\lambda, \quad n \in \mathbb{Z}
-\]
+A measured phase value φ (between 0 and 2π) corresponds to:
 
-This is the **phase wrapping problem**:  
-each device measures phase accurately but cannot determine the integer cycle count \( n \).
+```
+distance = (integer_cycles + fractional_phase) × wavelength
+
+d = ( n + φ / 2π ) × λ
+```
+where:
+
+- `φ` is the measured phase
+- `n` is an unknown integer cycle count
+- `λ` is the wavelength
+
+This is the **phase wrapping problem**:
+
+> Phase can be measured precisely,  
+> but the total number of cycles traveled is initially unknown.
 
 ---
 
 ## Why Multiple Devices Matter
 
-For three devices \( A, B, C \), relative arrival times must satisfy:
+With three devices A, B, and C, relative arrival times must be consistent.
 
-\[
-\Delta t_{AB} + \Delta t_{BC} \approx \Delta t_{AC}
-\]
+In time form:
 
-Translated to distance:
+```
+Δt_AB + Δt_BC ≈ Δt_AC
+```
 
-\[
-d_{AB} + d_{BC} \approx d_{AC}
-\]
+In distance form:
 
-Incorrect cycle counts violate these constraints.  
-Only **one integer assignment across all devices** produces a physically consistent geometry.
+```
+d_AB + d_BC ≈ d_AC
+```
+
+Incorrect integer cycle choices violate these relationships.
+
+**Only one assignment of integer cycles across all devices produces a valid physical geometry.**
+
+This is how ambiguity collapses into truth.
 
 ---
 
@@ -77,38 +105,41 @@ Only **one integer assignment across all devices** produces a physically consist
 - Event 1: Bat strikes ball (“crack”)
 - Event 2: Ball reaches glove (“thud”)
 - Multiple phones record both events
-- No shared clock
+- Devices are not time-synchronized
 
-### Measured Quantities
+### What Each Device Measures
 
-For device \( i \):
+For device *i*:
 
-- Phase at crack: \( \phi_{i,c} \)
-- Phase at thud: \( \phi_{i,g} \)
+- Phase at crack: φᵢ,c
+- Phase at thud: φᵢ,g
 
-Time difference per device:
+The time difference between events for that device is:
 
-\[
-\Delta t_i =
-\left(n_i + \frac{\phi_{i,g} - \phi_{i,c}}{2\pi}\right)\frac{1}{f}
-\]
+```
+Δt_i = ( n_i + (φᵢ,g − φᵢ,c) / 2π ) × (1 / f)
+```
 
-### Constraint Across Devices
+Each device has its own unknown integer cycle count `n_i`.
 
-For any two devices \( i, j \):
+---
 
-\[
-\Delta t_i - \Delta t_j =
-\frac{d_{i,g} - d_{i,c} - (d_{j,g} - d_{j,c})}{c}
-\]
+### Cross-Device Constraint
+
+For any two devices *i* and *j*:
+
+```
+Δt_i − Δt_j =
+( (dᵢ,glove − dᵢ,crack) − (dⱼ,glove − dⱼ,crack) ) / c
+```
 
 All devices must agree on the **same ball flight time**.
 
 ### Result
 
-- Wrong integer cycle assignments fail cross-device consistency
-- One solution satisfies all constraints
-- Absolute timing emerges without synchronized clocks
+- Wrong cycle counts fail consistency checks
+- One configuration satisfies all constraints
+- Absolute timing emerges without shared clocks
 
 This is the **clean reference case**.
 
@@ -121,42 +152,44 @@ This is the **clean reference case**.
 
 ### Differences from Example 1
 
-- Distances up to \( \sim 100 \,\text{m} \)
-- Crowd noise and PA echoes
-- Multiple candidate transients
+- Distances up to ~100 meters
+- Crowd noise and PA system echoes
+- Multiple candidate acoustic transients
 
 ### Early-Arrival Principle
 
-Direct path arrives before reflections:
+The direct sound path always arrives before reflections:
 
-\[
-t_{\text{direct}} < t_{\text{reflected}}
-\]
+```
+t_direct < t_reflected
+```
 
-Phase coherence is strongest in the **first arrival window**.
+Phase coherence is strongest during this first arrival window.
+
+---
 
 ### Multi-Device Distance Constraints
 
-For devices \( A, B, C \) observing the same event:
+For devices A, B, and C observing the same event:
 
-\[
-|d_A - d_B| \le c \cdot |\Delta t_{AB}|
-\]
+```
+| d_A − d_B | ≤ c × | Δt_AB |
+```
 
 Triangle inequality must hold:
 
-\[
-d_{AB} \le d_{AC} + d_{BC}
-\]
+```
+d_AB ≤ d_AC + d_BC
+```
 
 ### What Breaks
 
 - Late echoes violate triangle closure
-- Edited audio introduces inconsistent delays
+- Edited or replayed audio introduces inconsistent delays
 
 ### Result
 
-Despite noise, **global geometry still closes**.  
+Even in noisy environments, **global geometry still closes**.  
 False positives fail residual checks.
 
 ---
@@ -174,75 +207,76 @@ False positives fail residual checks.
 
 ### Strategy Shift
 
-Instead of a single impulse:
+Instead of relying on a single impulse:
 
 - Extract repeated impulsive micro-events (snare hits, claps)
-- Solve for consistency across many events
+- Enforce consistency across many events
 
-For event \( k \):
+For event *k* and device *i*:
 
-\[
-d_{i,k} =
-\left(n_{i,k} + \frac{\phi_{i,k}}{2\pi}\right)\lambda
-\]
+```
+dᵢ,k = ( nᵢ,k + φᵢ,k / 2π ) × λ
+```
 
-Require geometry to be stable:
+Require geometry stability:
 
-\[
-d_{i,k} - d_{j,k} \approx d_{i,k+1} - d_{j,k+1}
-\]
+```
+dᵢ,k − dⱼ,k ≈ dᵢ,k+1 − dⱼ,k+1
+```
 
 ### Interpretation
 
-The room geometry is fixed.  
-Cycle assignments that imply “moving walls” are invalid.
+The room does not move.  
+Cycle assignments implying “moving walls” are invalid.
 
 ### Result
 
-Accuracy degrades, but fabricated or edited audio fails quickly.
+Precision degrades, but fabricated or edited audio fails quickly.
 
 ---
 
-## Sound Source Localization (When Device Locations Are Known)
+## Sound Source Localization (Known Device Positions)
 
-If device positions \( (x_i, y_i, z_i) \) are known, the sound source position  
-\( (x_s, y_s, z_s) \) and emission time \( t_0 \) can be solved.
+If device positions are known:
 
-For each device:
+```
+Device i at (xᵢ, yᵢ, zᵢ)
+Sound source at (x_s, y_s, z_s)
+```
 
-\[
-d_i = c (t_i - t_0)
-\]
+Distance traveled by the sound wave:
 
-and simultaneously:
+```
+dᵢ = c × ( tᵢ − t₀ )
+```
 
-\[
-d_i =
-\left(N_i + \frac{\phi_i}{2\pi}\right)\lambda
-\]
+Also from phase measurement:
 
-This yields a system of equations:
+```
+dᵢ = ( Nᵢ + φᵢ / 2π ) × λ
+```
 
-\[
-\sqrt{(x_i - x_s)^2 + (y_i - y_s)^2 + (z_i - z_s)^2}
-= d_i
-\]
+Geometric constraint:
+
+```
+sqrt( (xᵢ − x_s)² + (yᵢ − y_s)² + (zᵢ − z_s)² ) = dᵢ
+```
 
 With enough devices:
 
-- integer cycle counts \( N_i \) are forced to a single solution,
-- the sound **origin location** is determined,
-- the **total distance traveled** by the wave is known,
-- and the **emission time** \( t_0 \) emerges automatically.
+- Integer cycle counts become fixed
+- Sound origin location is solved
+- Total travel distance is known
+- Emission time emerges automatically
 
-This works because only one geometry satisfies **all cycles, all distances, and all devices simultaneously**.
+Only **one solution** satisfies all devices, all cycles, and all distances.
 
 ---
 
 ## Summary Insight
 
-A single recording cannot tell you the truth.  
-A network of recordings must agree with physics.
+A single recording cannot tell you the truth.
 
-**Truth is the solution that survives every constraint.**
+A **network of recordings constrained by physics** can.
 
+> **Truth is the solution that survives every constraint.**
