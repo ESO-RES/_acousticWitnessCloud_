@@ -1,0 +1,199 @@
+# AIRS Troubleshoot
+## Failure Modes and Non-Convergence Examples
+
+**Status:** Informative (Non-Normative)  
+**Applies to:** Acoustic Incident Reconstruction Standard (AIRS) v1.0
+
+---
+
+## A.1 Purpose of This Appendix
+
+This appendix provides concrete examples of scenarios in which
+AIRS either:
+- rejects candidate reconstructions, or
+- reports non-convergence.
+
+These examples are provided to demonstrate transparency,
+not to extend or modify the AIRS standard.
+
+Failure is treated as a valid analytical outcome when
+physical or evidentiary constraints cannot be satisfied.
+
+---
+
+## A.2 General Failure Taxonomy
+
+AIRS failures fall into four broad categories:
+
+1. Measurement Ambiguity  
+2. Clock Model Breakdown  
+3. Geometric Underdetermination  
+4. Data Integrity Violations
+
+Each category is illustrated below.
+
+---
+
+## A.3 Scenario 1 — Phase Ambiguity Without Closure
+
+### Description
+Multiple observers record an impulsive event.
+Phase-based measurements are internally consistent per device,
+but admit multiple integer cycle assignments globally.
+
+### Observed Conditions
+- Clean transients on all devices
+- Stable phase measurements
+- Multiple cycle-count solutions satisfy individual observers
+
+### Why AIRS Rejects
+No single integer cycle assignment satisfies all observers
+under a shared geometry and bounded speed of sound.
+
+### Outcome
+- All candidate solutions rejected
+- Event marked **non-resolvable**
+- Logged reason: cycle ambiguity without closure
+
+### Key Principle Demonstrated
+Local precision does not imply global truth.
+
+---
+
+## A.4 Scenario 2 — Clock Drift Beyond Model Bounds
+
+### Description
+Two recordings appear aligned early in the incident window
+but diverge progressively over time.
+
+### Observed Conditions
+- Apparent linear drift exceeding plausible oscillator error
+- Required drift parameter deviates significantly from 1.0
+
+### Why AIRS Rejects
+The clock model would require implausible drift
+to force alignment.
+
+### Outcome
+- Drift-bounded hypothesis rejected
+- Non-convergence reported unless additional observers exist
+
+### Key Principle Demonstrated
+Alignment must remain physically plausible,
+not merely numerically achievable.
+
+---
+
+## A.5 Scenario 3 — Insufficient Observer Geometry
+
+### Description
+Two observers record an event from similar locations
+or along nearly collinear lines of sight.
+
+### Observed Conditions
+- Arrival time differences within uncertainty
+- Large family of geometries satisfy constraints
+
+### Why AIRS Rejects
+Geometry is underdetermined.
+Multiple event locations remain admissible.
+
+### Outcome
+- Timing order may be reported
+- Spatial inference withheld
+- Geometry flagged as non-unique
+
+### Key Principle Demonstrated
+AIRS does not invent geometry where physics does not constrain it.
+
+---
+
+## A.6 Scenario 4 — Reverberation-Dominated Signals
+
+### Description
+An indoor event is recorded where reflections dominate
+and no clear direct arrival can be isolated.
+
+### Observed Conditions
+- Multiple strong onsets
+- Arrival timing unstable across bandpass filters
+
+### Why AIRS Rejects
+No Direct Arrival Candidate (DAC) can be established.
+
+### Outcome
+- Event excluded from reconstruction
+- Logged as DAC failure
+
+### Key Principle Demonstrated
+AIRS prioritizes physical validity over signal richness.
+
+---
+
+## A.7 Scenario 5 — Edited or Time-Warped Recordings
+
+### Description
+A recording has been edited or processed such that
+time is non-linearly distorted.
+
+### Observed Conditions
+- Sudden timing discontinuities
+- Inconsistent offset or drift estimates across segments
+
+### Why AIRS Rejects
+The observer clock model is violated.
+
+### Outcome
+- Recording excluded
+- Remaining observers re-evaluated
+- Possible non-convergence
+
+### Key Principle Demonstrated
+AIRS requires temporal integrity to make claims.
+
+---
+
+## A.8 Scenario 6 — Competing Solutions Within Tolerance
+
+### Description
+Two distinct reconstructions satisfy all constraints
+within declared uncertainty bounds.
+
+### Observed Conditions
+- Comparable residuals
+- No physical constraint favors one solution
+
+### Why AIRS Rejects
+AIRS does not select between indistinguishable explanations.
+
+### Outcome
+- Multiple solutions reported
+- Marked non-unique
+- No preferred narrative selected
+
+### Key Principle Demonstrated
+Ambiguity is reported, not resolved arbitrarily.
+
+---
+
+## A.9 Summary
+
+These scenarios illustrate that AIRS is designed to:
+- reject attractive but unsupported solutions,
+- halt when physical closure is not achievable,
+- and surface ambiguity rather than conceal it.
+
+Failure modes are an expected and documented part
+of responsible incident reconstruction.
+
+---
+
+## A.10 Relationship to the Standard
+
+This appendix:
+- does not alter AIRS requirements,
+- does not introduce new constraints,
+- and is provided solely for explanatory purposes.
+
+Normative requirements remain exclusively within
+the AIRS standard document.
