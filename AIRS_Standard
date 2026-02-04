@@ -1,0 +1,439 @@
+# Acoustic Incident Reconstruction Standard (AIRS)
+
+**Physics-Bound Reconstruction from  
+Unsynchronized Consumer Sensors**
+
+---
+
+## 0. Status and Intended Use
+
+AIRS defines a repeatable and auditable method  
+to reconstruct event timing and relative geometry  
+from multiple independent recordings.
+
+Recordings may include audio and optional video  
+captured on unsynchronized consumer devices.
+
+AIRS is designed for forensic and incident analysis  
+where claims must be bounded by physics  
+and supported by reproducible logs.
+
+AIRS does **not** guarantee identification,  
+intent, or causality.
+
+All conclusions are conditional,  
+include confidence bounds,  
+and define explicit failure conditions.
+
+---
+
+## 1. Definitions
+
+**Observer**  
+A recording device  
+(phone, camera, dashcam, recorder)  
+providing audio and optional video.
+
+**Incident**  
+A bounded time interval  
+containing one or more events of interest.
+
+**Event**  
+An acoustically observable transient  
+(impulse, crack, thud, shout, gunshot, collision)  
+or a defined acoustic pattern.
+
+**Direct Arrival Candidate (DAC)**  
+A segment believed to represent  
+the first arrival path,  
+not a reflection.
+
+**Offset**  
+A constant time shift  
+between an observer clock  
+and a reference.
+
+**Drift**  
+A time-varying clock error,  
+typically linear over short windows.
+
+**Phase Wrapping**  
+Ambiguity introduced by integer cycles  
+in phase-based measurements.
+
+**Constraint Closure**  
+The condition where all observers  
+admit a single globally consistent solution.
+
+---
+
+## 2. Scope and Preconditions
+
+### 2.1 Required
+
+- Two or more independent observers  
+  (three or more recommended for strong closure)
+- Access to original files when possible  
+  (avoid re-exports)
+- Documented chain-of-custody metadata  
+  for each file
+
+### 2.2 Optional but Recommended
+
+- Video for frame-anchored timing  
+  and corroboration
+- Estimated sensor locations or constraints  
+  (e.g., “within 5 m of dugout”)
+
+### 2.3 Exclusions
+
+AIRS does not apply when recordings are known  
+to be time-warped, heavily edited, or synthesized  
+in ways that prevent reproducible measurement.
+
+Such transformations may only be used  
+if explicitly modeled and validated.
+
+---
+
+## 3. Evidence Handling and Chain of Custody
+
+### 3.1 Acquisition
+
+For each file, record:
+
+- Source device and model (if known)
+- Acquisition method  
+  (direct export, messaging app, social download)
+- File hash (SHA-256)
+- Container and codec details
+- Sample rate and bit depth
+- Creation and modification timestamps  
+  (not assumed reliable)
+
+### 3.2 Preservation
+
+- Store originals as read-only
+- Perform analysis only on copies
+- Maintain a run log mapping  
+  derived artifacts back to source hashes
+
+---
+
+## 4. Data Preparation
+
+### 4.1 Normalization (Non-Destructive)
+
+- Decode to a standard analysis format  
+  (e.g., WAV / PCM)  
+  without resampling when feasible
+- If resampling is required:
+  - log the method and parameters
+  - retain pre- and post-hashes
+
+### 4.2 Quality Checks
+
+Document the presence of:
+
+- Clipping
+- Automatic gain control artifacts
+- Compression artifacts  
+  (e.g., smeared transients)
+- Dropouts and discontinuities
+- Audio/video desynchronization (A/V offset)
+
+---
+
+## 5. Event Selection and Annotation
+
+### 5.1 Event Candidate Identification
+
+Identify potential event windows using:
+
+- Transient detectors  
+  (energy rise, spectral flux)
+- Manual review for corroboration
+- Video cues  
+  (impact frame, muzzle flash, gesture)
+
+### 5.2 Direct Arrival Candidate (DAC) Criteria
+
+A segment qualifies as a DAC when:
+
+- Onset is sharp relative to reverberation
+- Timing is stable under small bandpass changes
+- Cross-observer alignment is plausible  
+  under speed-of-sound bounds
+
+If a DAC cannot be established:
+
+- Mark the event as **non-resolvable**, or
+- Switch to a reflection-aware model  
+  with increased uncertainty
+
+---
+
+## 6. Observer Clock Model
+
+For each observer *i*:
+
+Local time (tᵢ) relates to reference time (t) as:
+
+```
+local time = offset + (drift × reference time)
+
+tᵢ = aᵢ + bᵢ · t
+```
+
+Where:
+
+- aᵢ is the clock offset  
+  (constant time shift)
+- bᵢ is the clock drift factor  
+  (approximately 1 over short windows)
+
+AIRS requires estimating or bounding  
+offset and drift values.
+
+Timestamps must not be assumed correct.
+
+---
+
+## 7. Measurement Model
+
+### 7.1 Timing Measurements
+
+For each event *e* and observer *i*, measure:
+
+- Estimated arrival time at observer *i*
+- Associated timing uncertainty
+- Measurement method used  
+  (cross-correlation, onset detector,  
+  matched filter)
+
+### 7.2 Phase / Cycle Measurements (If Used)
+
+Phase-based inference is permitted only when:
+
+- The analysis frequency band is specified
+- Phase is computed consistently  
+  across observers
+- Integer cycle ambiguity is explicitly modeled:
+
+```
+measured phase
+= true phase
++ (2π × integer number of cycles)
+
+φᵢ,ₑ = φ*ᵢ,ₑ + 2π · kᵢ,ₑ
+kᵢ,ₑ is an integer
+```
+
+Phase may improve precision,  
+but may not establish absolute distance  
+without constraint closure.
+
+---
+
+## 8. Physical Constraints
+
+### 8.1 Propagation Constraint
+
+For an event occurring at location xₑ  
+and an observer located at xᵢ:
+
+```
+arrival time at observer
+= event time
++ (distance from event to observer ÷ speed of sound)
+
+tᵢ,ₑ = tₑ + |xₑ − xᵢ| / c
+```
+
+Where:
+
+- c is the speed of sound
+
+AIRS requires bounding the speed of sound  
+based on environmental assumptions  
+(e.g., temperature and humidity),  
+which must be logged.
+
+### 8.2 Cross-Observer Consistency
+
+For any pair of observers *(i, j)*:
+
+```
+difference in arrival times
+= arrival time at observer i
+− arrival time at observer j
+
+Δtᵢⱼ,ₑ = tᵢ,ₑ − tⱼ,ₑ
+```
+
+The time difference must be compatible  
+with physical geometry  
+and the bounded speed of sound.
+
+### 8.3 Closure Requirement
+
+Acceptance requires a solution set including:
+
+- event time
+- event location
+- observer offsets
+- observer drift factors
+- integer cycle assignments (if used)
+
+This solution must:
+
+- Minimize residual error
+- Satisfy all physical constraints
+- Hold across all included observers
+- Remain within declared uncertainty bounds
+
+---
+
+## 9. Solver and Hypothesis Testing
+
+### 9.1 Candidate Generation
+
+Generate hypotheses over:
+
+- Event time ordering
+- Offset and drift parameters
+- Integer cycle assignments (if applicable)
+- Feasible geometry regions
+
+### 9.2 Rejection and Falsification
+
+Rejected hypotheses must be logged  
+with explicit reasons, such as:
+
+- Violation of speed-of-sound bounds
+- Implausible drift requirements
+- Incompatible integer cycle assignments
+- Residual errors exceeding thresholds
+
+### 9.3 Acceptance Criteria
+
+A solution is admissible only if:
+
+- Residual RMS is below a predefined threshold
+- No competing solution with similar residual  
+  exists within uncertainty bounds
+- Constraint closure holds across:
+  - Three or more observers when available
+  - Two observers only with elevated uncertainty  
+    and explicit limitation
+
+---
+
+## 10. Uncertainty and Reporting
+
+### 10.1 Required Outputs per Event
+
+- Estimated event time  
+  with a confidence interval
+- Relative arrival ordering with bounds
+- Geometry estimates expressed as regions  
+  unless point estimates are justified
+- Residual distributions per observer
+- Sensitivity analysis  
+  (effects of speed of sound,  
+  drift bounds, and event window selection)
+
+### 10.2 Prohibited Output Styles
+
+- Single-point claims without intervals
+- “Exact distance” claims without closure proof
+- Conclusory statements about identity or intent
+
+---
+
+## 11. Failure Modes and Non-Convergence
+
+Analysts must report **non-resolvable** when:
+
+- A DAC cannot be established
+- Observers are too few or correlated
+- Recordings show time-warping or editing  
+  not modeled
+- Multiple competing solutions remain  
+  within tolerance
+
+Non-convergence is a valid outcome  
+and must be documented.
+
+---
+
+## 12. Validation Protocol
+
+### 12.1 Reproducibility
+
+An independent analyst must be able to reproduce:
+
+- Decoded analysis files
+- Event windows
+- Parameter bounds
+- Solver outputs
+
+Using only the logged configuration  
+and evidence hashes.
+
+### 12.2 Benchmarking
+
+AIRS recommends validation against:
+
+- Synthetic known-geometry impulse sets
+- Controlled recordings with measured placements
+- Adversarial cases  
+  (echoes, AGC, compression, partial edits)
+
+---
+
+## 13. AIRS Conformance Checklist
+
+Minimum conformance requires:
+
+1. Source hashes recorded (SHA-256)
+2. Device and acquisition pathway documented
+3. Event windows and DAC rationale logged
+4. Offset and drift modeled or bounded
+5. Speed-of-sound bounds stated
+6. Rejected hypotheses logged with reasons
+7. Residuals and uncertainty reported
+8. Non-resolvable outcomes documented
+9. Outputs reproducible from configuration
+
+---
+
+## 14. Standard Deliverables
+
+An AIRS-compliant case package includes:
+
+- Case Summary (1–2 pages)
+- Evidence Manifest  
+  (hashes, devices, provenance)
+- Event Table  
+  (times, intervals, uncertainty)
+- Method Section  
+  (model and parameters)
+- Residual and Closure Report  
+  (plots and thresholds)
+- Rejection Log  
+  (failed hypotheses)
+- Repro Pack  
+  (configs, scripts, deterministic seeds)
+
+---
+
+## 15. Standard Language for Testimony
+
+> “AIRS constrains interpretations of multiple  
+> recordings to those consistent with physics  
+> and measured uncertainty.  
+> Where the recordings do not support  
+> a unique reconstruction,  
+> AIRS reports non-convergence  
+> rather than selecting a preferred narrative.”
