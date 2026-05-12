@@ -309,3 +309,8 @@ A single recording cannot tell you the truth.
 A **network of recordings constrained by physics** can.
 
 > **Truth is the solution that survives every constraint.**
+<img width="1206" height="838" alt="image" src="https://github.com/user-attachments/assets/233387cf-0279-4dbf-a9da-cd5f9aa39847" />
+
+
+
+
