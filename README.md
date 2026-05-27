@@ -6,8 +6,7 @@
 
 <img width="1206" height="805" alt="image" src="https://github.com/user-attachments/assets/7a572b66-9fe1-400d-bc2f-58e93d9c73fe" />
 
-<img width="1206" height="751" alt="image" src="https://github.com/user-attachments/assets/645d3b27-f228-4678-af01-0cdbfb125a5b" />
-
+<img width="1206" height="751" alt="image" src="https://github.com/user-attachments/assets/8af5e5fc-dbcf-4927-835d-7e171220903b" />
 
 ![image](https://github.com/user-attachments/assets/4face868-0c75-4183-af94-4395ba13c7c6)
 
